@@ -210,8 +210,11 @@ class CitationCheck(models.Model):
         "brave_search": "Brave Search",
         "brave_llm_context": "Brave AI Context",
         "ollama_local": "Local AI Simulation",
+        "llm_citation": "AI Citation Simulation",
         "citation_provider": "Citation Provider",
     }
+    SIMULATION_ENGINES = {"ollama_local", "llm_citation"}
+    LIVE_EVIDENCE_ENGINES = {"brave_search", "brave_llm_context"}
 
     STATUS_COMPLETE = "complete"
     STATUS_SKIPPED = "skipped"
@@ -241,3 +244,11 @@ class CitationCheck(models.Model):
     @property
     def engine_label(self):
         return self.ENGINE_LABELS.get(self.ai_engine, self.ai_engine.replace("_", " ").title())
+
+    @property
+    def is_simulation(self):
+        return self.ai_engine in self.SIMULATION_ENGINES
+
+    @property
+    def is_live_evidence(self):
+        return self.ai_engine in self.LIVE_EVIDENCE_ENGINES

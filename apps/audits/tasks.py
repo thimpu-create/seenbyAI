@@ -6,6 +6,7 @@ from django.utils import timezone
 
 from apps.audits.models import AuditFinding, AuditReport, CitationCheck
 from apps.citation_checker.engine import run_citation_checks
+from apps.citation_checker.authority import enrich_authority_signals
 from apps.crawler.engine import crawl_website, fetch_html
 from apps.crawler.schema_detector import detect_schema_types
 from apps.scorer.engine import (
@@ -24,6 +25,7 @@ def run_audit(self, audit_id: str):
     try:
         audit.mark_running()
         crawl_data = asyncio.run(crawl_website(audit.url))
+        crawl_data = asyncio.run(enrich_authority_signals(crawl_data, audit.domain))
         homepage_html = asyncio.run(fetch_html(audit.url))
         schema_data = detect_schema_types(homepage_html)
 

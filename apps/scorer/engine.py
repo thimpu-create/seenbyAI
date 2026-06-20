@@ -147,16 +147,48 @@ def score_content(crawl_data: dict) -> dict:
 
 
 def score_authority(crawl_data: dict) -> dict:
-    checks = [
-        ("has_social_presence", 20, "high", "No social media presence was detected.", "Create or link official profiles on LinkedIn, X, YouTube, or relevant industry platforms.", "Social presence verified"),
-        ("has_wikipedia_mention", 25, "medium", "No Wikipedia or Wikidata signal was detected.", "If notable, build a Wikidata entity or earn neutral third-party references.", "Wikipedia/Wikidata signal"),
-        ("has_directory_listing", 20, "high", "No business directory signal was detected.", "Claim profiles on Google Business Profile, Bing Places, Yelp, G2, Clutch, or industry directories.", "Directory signals found"),
-        ("has_press_mentions", 20, "medium", "No press or newsroom signals were detected.", "Publish a newsroom and pursue credible third-party mentions.", "Press signals found"),
-    ]
-    result = _score_boolean_checks(crawl_data, checks)
+    findings = []
+    score = 0.0
 
-    findings = result["findings"]
-    score = result["score"]
+    if crawl_data.get("has_social_presence"):
+        score += 20
+        findings.append(_pass("Social presence verified", "Social presence verified detected.", 20))
+    else:
+        findings.append(_fail("high", "Missing: Social presence verified", "No social media presence was detected.", "Create or link official profiles on LinkedIn, X, YouTube, or relevant industry platforms.", -20))
+
+    external_checked = crawl_data.get("authority_external_checked")
+    external_data = crawl_data.get("authority_external_data", {})
+    external_checks = [
+        ("has_wikipedia_mention", "wikipedia", 25, "medium", "No Wikipedia or Wikidata signal was found in external search results.", "If notable, build a Wikidata entity or earn neutral third-party references.", "Wikipedia/Wikidata signal"),
+        ("has_directory_listing", "directory", 20, "high", "No major directory/profile signal was found in external search results.", "Claim profiles on Google Business Profile, Bing Places, LinkedIn, Crunchbase, G2, Clutch, or industry directories.", "Directory/profile signals found"),
+        ("has_press_mentions", "press", 20, "medium", "No press or news signal was found in external search results.", "Publish a newsroom and pursue credible third-party mentions.", "Press/news signals found"),
+    ]
+
+    if external_checked:
+        for field, signal_key, points, severity, fail_desc, recommendation, pass_title in external_checks:
+            signal_data = external_data.get(signal_key, {})
+            if crawl_data.get(field):
+                score += points
+                findings.append(_pass(pass_title, f"{pass_title} detected from external search or site content.", points))
+            elif signal_data and not signal_data.get("checked", True):
+                findings.append(_fail(
+                    "low",
+                    f"{pass_title} not verified",
+                    "The external lookup for this authority signal did not complete, so this scan cannot confirm whether the signal exists.",
+                    "Retry the scan after provider access is available, or add a Brave Search key with enough quota.",
+                    0,
+                ))
+            else:
+                findings.append(_fail(severity, f"Missing: {pass_title}", fail_desc, recommendation, -points))
+    else:
+        findings.append(_fail(
+            "low",
+            "External authority search not configured",
+            "Wikipedia, directory, and press signals were not externally verified because BRAVE_SEARCH_API_KEY is not configured.",
+            "Add BRAVE_SEARCH_API_KEY to verify external authority signals instead of relying only on crawled page text.",
+            0,
+        ))
+
     domain_age_years = crawl_data.get("domain_age_years", 0)
     if domain_age_years >= 5:
         score += 15
@@ -165,7 +197,10 @@ def score_authority(crawl_data: dict) -> dict:
         score += 8
         findings.append(_fail("low", "Relatively new domain", f"Domain age signal is only {domain_age_years} years.", "Compensate with strong brand mentions, citations, and directory listings.", -7))
     else:
-        findings.append(_fail("medium", "No domain age authority signal", "Domain age could not be verified from the crawl.", "Add stronger third-party entity signals while the domain gains history.", -15))
+        if crawl_data.get("authority_external_data", {}).get("domain_age_checked") is False:
+            findings.append(_fail("low", "Domain age not verified", "Domain age could not be verified through RDAP.", "This is a measurement gap, not proof that the domain is new.", 0))
+        else:
+            findings.append(_fail("medium", "No domain age authority signal", "Domain age could not be verified.", "Add stronger third-party entity signals while the domain gains history.", -15))
 
     return _result(score, findings)
 

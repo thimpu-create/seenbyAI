@@ -135,12 +135,21 @@ def _report_context(audit):
         findings_by_dimension.setdefault(finding.dimension, []).append(finding)
 
     citation_checks = audit.citation_checks.all()
-    completed_checks = [check for check in citation_checks if check.status == "complete"]
+    live_checks = [check for check in citation_checks if check.is_live_evidence]
+    simulation_checks = [check for check in citation_checks if check.is_simulation]
+    completed_live_checks = [check for check in live_checks if check.status == "complete"]
+    completed_simulation_checks = [check for check in simulation_checks if check.status == "complete"]
     citation_summary = {
-        "total_checked": len(completed_checks),
-        "times_cited": sum(1 for check in completed_checks if check.was_cited),
-        "skipped": sum(1 for check in citation_checks if check.status == "skipped"),
-        "failed": sum(1 for check in citation_checks if check.status == "failed"),
+        "total_checked": len(completed_live_checks),
+        "times_cited": sum(1 for check in completed_live_checks if check.was_cited),
+        "skipped": sum(1 for check in live_checks if check.status == "skipped"),
+        "failed": sum(1 for check in live_checks if check.status == "failed"),
+    }
+    simulation_summary = {
+        "total_checked": len(completed_simulation_checks),
+        "likely_ready": sum(1 for check in completed_simulation_checks if check.was_cited),
+        "skipped": sum(1 for check in simulation_checks if check.status == "skipped"),
+        "failed": sum(1 for check in simulation_checks if check.status == "failed"),
     }
 
     critical_fixes = audit.findings.filter(is_passed=False).exclude(severity="pass").order_by("points_impact")[:6]
@@ -149,6 +158,9 @@ def _report_context(audit):
         "findings_by_dimension": findings_by_dimension,
         "dimension_scores": audit.get_dimension_scores(),
         "citation_summary": citation_summary,
+        "simulation_summary": simulation_summary,
+        "live_citation_checks": live_checks,
+        "simulation_checks": simulation_checks,
         "critical_fixes": critical_fixes,
     }
 

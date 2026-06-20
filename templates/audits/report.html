@@ -40,17 +40,17 @@
 
     <section class="rounded-xl border border-[#E4E0D4] bg-white p-6 shadow-sm">
         <div class="flex flex-col gap-1 border-b border-[#E4E0D4] pb-4 sm:flex-row sm:items-end sm:justify-between">
-            <h2 class="display text-2xl font-medium text-[#13192B]">Citation checks</h2>
-            <p class="text-sm text-[#8B8578]">{{ citation_summary.times_cited }} cited out of {{ citation_summary.total_checked }} completed checks</p>
+            <h2 class="display text-2xl font-medium text-[#13192B]">Live citation evidence</h2>
+            <p class="text-sm text-[#8B8578]">{{ citation_summary.times_cited }} cited out of {{ citation_summary.total_checked }} completed live checks</p>
         </div>
         {% if citation_summary.total_checked == 0 %}
-            <div class="mt-4 rounded-lg border border-[#E4E0D4] bg-[#F6F0DE] px-4 py-3 text-sm font-medium text-[#8B6F25]">No citation checks completed. This means the citation provider was unavailable or not configured; it does not prove the site was absent from AI search.</div>
+            <div class="mt-4 rounded-lg border border-[#E4E0D4] bg-[#F6F0DE] px-4 py-3 text-sm font-medium text-[#8B6F25]">No live citation evidence checks completed. This usually means Brave Search is unavailable or not configured; it does not prove the site is absent from AI answers.</div>
         {% endif %}
         {% if citation_summary.skipped %}
-            <div class="mt-4 rounded-lg border border-[#E4E0D4] bg-[#FAFAF7] px-4 py-3 text-sm text-[#454C5E]">One or more citation checks were skipped. Add a Brave Search key or configure a reachable Ollama endpoint to enable them.</div>
+            <div class="mt-4 rounded-lg border border-[#E4E0D4] bg-[#FAFAF7] px-4 py-3 text-sm text-[#454C5E]">One or more live checks were skipped. Add a Brave Search key to enable real search-result and AI-context evidence.</div>
         {% endif %}
         <div class="mt-4 divide-y divide-[#E4E0D4]">
-            {% for check in audit.citation_checks.all %}
+            {% for check in live_citation_checks %}
                 <article class="grid gap-3 py-4 sm:grid-cols-[minmax(0,1fr)_auto]">
                     <div>
                         <span class="mono text-xs font-semibold uppercase tracking-wide text-[#8B8578]">{{ check.engine_label }}</span>
@@ -64,6 +64,41 @@
                         {% if check.was_cited %}Cited{% else %}{{ check.get_status_display }}{% endif %}
                     </span>
                 </article>
+            {% empty %}
+                <p class="py-6 text-sm text-[#8B8578]">No live citation provider returned evidence for this scan.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="rounded-xl border border-[#E4E0D4] bg-white p-6 shadow-sm">
+        <div class="flex flex-col gap-1 border-b border-[#E4E0D4] pb-4 sm:flex-row sm:items-end sm:justify-between">
+            <h2 class="display text-2xl font-medium text-[#13192B]">AI readiness simulation</h2>
+            <p class="text-sm text-[#8B8578]">{{ simulation_summary.likely_ready }} likely ready out of {{ simulation_summary.total_checked }} completed simulations</p>
+        </div>
+        {% if simulation_summary.total_checked == 0 %}
+            <div class="mt-4 rounded-lg border border-[#E4E0D4] bg-[#F6F0DE] px-4 py-3 text-sm font-medium text-[#8B6F25]">No simulation completed. Configure a reachable local or hosted LLM endpoint to estimate whether the crawled content looks citation-ready.</div>
+        {% endif %}
+        {% if simulation_summary.skipped %}
+            <div class="mt-4 rounded-lg border border-[#E4E0D4] bg-[#FAFAF7] px-4 py-3 text-sm text-[#454C5E]">One or more simulations were skipped because the configured LLM endpoint was unavailable.</div>
+        {% endif %}
+        <div class="mt-4 divide-y divide-[#E4E0D4]">
+            {% for check in simulation_checks %}
+                <article class="grid gap-3 py-4 sm:grid-cols-[minmax(0,1fr)_auto]">
+                    <div>
+                        <span class="mono text-xs font-semibold uppercase tracking-wide text-[#8B8578]">{{ check.engine_label }}</span>
+                        <h3 class="mt-1 font-semibold text-[#13192B]">{{ check.query_used }}</h3>
+                        <p class="mt-2 text-sm leading-6 text-[#454C5E]">{{ check.ai_response_snippet|linebreaksbr }}</p>
+                    </div>
+                    <span class="mono h-fit rounded-full px-3 py-1 text-[11px] font-semibold uppercase {% if check.was_cited %}bg-[#E9F0EA] text-[#3A6B52]{% elif check.status == 'failed' %}bg-[#FAEAE6] text-[#C44536]{% elif check.status == 'skipped' %}bg-[#F2F0E9] text-[#8B8578]{% else %}bg-[#F6F0DE] text-[#8B6F25]{% endif %}">
+                        {% if check.status == 'complete' %}
+                            {% if check.was_cited %}Likely ready{% else %}Needs work{% endif %}
+                        {% else %}
+                            {{ check.get_status_display }}
+                        {% endif %}
+                    </span>
+                </article>
+            {% empty %}
+                <p class="py-6 text-sm text-[#8B8578]">No AI-readiness simulation was stored for this scan.</p>
             {% endfor %}
         </div>
     </section>

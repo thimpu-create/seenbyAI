@@ -153,17 +153,17 @@ async def check_llm_citation(query: str, target_domain: str, crawl_data: dict) -
             "fresh_dates": crawl_data.get("has_visible_dates"),
         },
     }
-    system_prompt = "You are simulating an AI answer-engine citation readiness check."
+    system_prompt = "You are simulating an AI answer-engine citation readiness check, not verifying a live citation."
     user_prompt = (
         "Use only the supplied website crawl context to judge whether this site is citation-ready "
         "for the query.\n\n"
         f"Query: {query}\nContext: {json.dumps(context)}\n\n"
         "First write your reasoning, then derive the verdict from that reasoning -- "
-        "was_cited must agree with what you just wrote. If your reasoning says the site "
-        "is NOT citation-ready, was_cited must be false.\n\n"
+        "is_likely_citation_ready must agree with what you just wrote. If your reasoning says the site "
+        "is NOT citation-ready, is_likely_citation_ready must be false.\n\n"
         "Respond with ONLY a JSON object, no other text, in exactly this shape, "
-        "with reasoning written before was_cited:\n"
-        '{"reasoning": "one or two sentence explanation", "was_cited": true or false}'
+        "with reasoning written before is_likely_citation_ready:\n"
+        '{"reasoning": "one or two sentence explanation", "is_likely_citation_ready": true or false}'
     )
     payload = {
         "model": settings.LLM_MODEL,
@@ -207,7 +207,7 @@ async def check_llm_citation(query: str, target_domain: str, crawl_data: dict) -
 
     try:
         parsed = json.loads(raw_answer)
-        was_cited = bool(parsed.get("was_cited", False))
+        is_likely_ready = bool(parsed.get("is_likely_citation_ready", parsed.get("was_cited", False)))
         reasoning = str(parsed.get("reasoning", "")).strip() or raw_answer[:500]
     except (json.JSONDecodeError, AttributeError):
         # Model didn't return valid JSON despite response_format=json_object --
@@ -221,22 +221,24 @@ async def check_llm_citation(query: str, target_domain: str, crawl_data: dict) -
         )
 
     # Defense in depth: the prompt asks the model to write reasoning before the
-    # verdict, but small/fast models can still set was_cited=true while writing
+    # verdict, but small/fast models can still set the boolean true while writing
     # reasoning that says the opposite. If the reasoning clearly negates
     # citation-readiness, override the model's boolean rather than trust it blindly.
     negation_markers = ("not citation-ready", "not look citation-ready", "does not appear to be citation-ready", "isn't citation-ready", "is not citable")
     reasoning_lower = reasoning.lower()
-    if was_cited and any(marker in reasoning_lower for marker in negation_markers):
-        was_cited = False
+    if is_likely_ready and any(marker in reasoning_lower for marker in negation_markers):
+        is_likely_ready = False
 
     return {
         "ai_engine": "llm_citation",
         "query_used": query,
         "status": "complete",
-        "was_cited": was_cited,
-        "citation_url": f"https://{target_domain}" if was_cited else "",
+        # This field is reused as the simulation verdict. It is intentionally
+        # excluded from live citation counts in report context.
+        "was_cited": is_likely_ready,
+        "citation_url": "",
         "ai_response_snippet": reasoning[:500],
-        "all_citations": [{"title": target_domain, "url": f"https://{target_domain}"}] if was_cited else [],
+        "all_citations": [],
     }
 
 
