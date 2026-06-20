@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Payment Complete - {{ product_name }}{% endblock %}
+
+{% block content %}
+<section class="mx-auto mt-10 max-w-2xl rounded-xl border border-[#E4E0D4] bg-white p-10 text-center shadow-sm">
+    <div class="mono mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#E9F0EA] text-2xl font-semibold text-[#3A6B52]">✓</div>
+    <p class="mono mt-6 text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Payment complete</p>
+    <h1 class="display mt-3 text-4xl font-medium tracking-tight text-[#13192B]">{{ purchase.credits }} scan credits added</h1>
+    <p class="mx-auto mt-4 max-w-lg text-sm leading-6 text-[#454C5E]">{{ purchase.email }} now has {{ active_customer.total_audits_remaining }} scans available.</p>
+    <a class="mt-7 inline-flex h-11 items-center justify-center rounded-md bg-[#13192B] px-5 text-sm font-semibold text-[#FAFAF7] shadow-sm hover:bg-black" href="{% url 'dashboard' %}">Run another scan</a>
+</section>
+{% endblock %}

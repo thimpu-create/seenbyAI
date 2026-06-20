@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ product_name }} — check if your site is AI-search ready</title>
+
+    <!-- ADDED: meta description — single highest-leverage fix from the scan -->
+    <meta name="description" content="{{ product_name }} audits your website for AI search readiness: crawlability, schema, trust signals, content structure, and whether AI Overviews, Perplexity, and ChatGPT Search can actually cite you. Run 2 free scans, no card required.">
+
+    <!-- ADDED: canonical tag -->
+    <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{% url 'landing' %}">
+
+    <!-- ADDED: Open Graph + Twitter card so social/AI crawlers get a clean entity summary -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ product_name }}">
+    <meta property="og:title" content="{{ product_name }} — check if your site is AI-search ready">
+    <meta property="og:description" content="Audit your website for AI search readiness across technical health, schema, trust, content, and citations. 2 free scans, no card required.">
+    <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{% url 'landing' %}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ product_name }} — check if your site is AI-search ready">
+    <meta name="twitter:description" content="Audit your website for AI search readiness across technical health, schema, trust, content, and citations.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: Inter, system-ui, sans-serif; }
+        .display { font-family: Fraunces, Georgia, serif; }
+        .mono { font-family: "IBM Plex Mono", monospace; }
+    </style>
+
+    <!-- ADDED: Organization schema — identifies the entity behind the site -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "{{ product_name }}",
+        "url": "{{ request.scheme }}://{{ request.get_host }}{% url 'landing' %}",
+        "description": "AI search visibility audits that check whether websites are crawlable, structured, trustworthy, and ready to be cited by AI Overviews, AI Mode, Perplexity, and ChatGPT Search.",
+        "sameAs": []
+    }
+    </script>
+
+    <!-- ADDED: SoftwareApplication + Offer schema — names the product and its price -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "{{ product_name }}",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "description": "Runs an AI search readiness audit across technical health, schema, trust signals, content structure, and AI citation testing, then returns a scored report with prioritized fixes.",
+        "offers": [
+            {
+                "@type": "Offer",
+                "name": "Free scan",
+                "price": "0",
+                "priceCurrency": "INR",
+                "description": "Two free AI search readiness scans per new account, no card required."
+            },
+            {
+                "@type": "Offer",
+                "name": "Scan credits",
+                "price": "99",
+                "priceCurrency": "INR",
+                "description": "10-scan credit pack."
+            }
+        ]
+    }
+    </script>
+
+    <!-- ADDED: FAQPage schema — paired with the new FAQ section below -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What does {{ product_name }} actually check?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Five areas: technical health (HTTPS, sitemap, robots, canonical tags, response time), structured data (Organization, WebSite, FAQPage, Article, HowTo schema), trust signals (about, contact, author bios, visible dates), content structure (direct answers, heading hierarchy, depth), and a live AI citation test against configured search providers."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How is the AI score calculated?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Each of the five categories is scored independently, then combined into a single 0-100 AI score with a letter grade. The report breaks down exactly which checks passed, failed, or are missing in each category."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Is the free scan really free?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes. Every new account gets {{ free_audit_limit }} free scan{{ free_audit_limit|pluralize }} with full scoring, findings, and a downloadable PDF report, no card required. Additional scans are available in a {{ scan_pack_size }}-scan credit pack."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Which AI search surfaces does this cover?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "The audit is built around how Google AI Overviews, Google AI Mode, Perplexity, and ChatGPT-style search retrieve, extract, and cite web content."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Do I need to install anything on my site?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "No. Submit your URL and the crawler, schema detector, scoring engine, and citation checker run entirely on our side. You get a report and PDF back, with nothing to install."
+                }
+            }
+        ]
+    }
+    </script>
+</head>
+<body class="bg-[#FAFAF7] text-[#13192B] antialiased">
+    <nav class="sticky top-0 z-50 border-b border-[#E4E0D4] bg-[#FAFAF7]/90 backdrop-blur">
+        <div class="mx-auto flex h-[72px] max-w-6xl items-center justify-between px-5 sm:px-8">
+            <a class="display flex items-center gap-3 text-xl font-semibold" href="{% url 'landing' %}">
+                <span class="mono grid h-7 w-7 place-items-center rounded-full border border-[#13192B] text-xs">S</span>
+                <span>{{ product_name }}</span>
+            </a>
+            <div class="hidden items-center gap-8 text-sm font-medium text-[#454C5E] md:flex">
+                <a class="hover:text-[#13192B]" href="#checks">Checks</a>
+                <a class="hover:text-[#13192B]" href="#how">How it works</a>
+                <a class="hover:text-[#13192B]" href="#faq">FAQ</a>
+                <a class="hover:text-[#13192B]" href="#pricing">Free scans</a>
+            </div>
+            <div class="flex items-center gap-3">
+                {% if user.is_authenticated %}
+                    <a class="rounded-md bg-[#13192B] px-4 py-2 text-sm font-semibold text-[#FAFAF7] hover:bg-black" href="{% url 'dashboard' %}">Open Dashboard</a>
+                {% else %}
+                    <a class="hidden px-3 py-2 text-sm font-semibold text-[#454C5E] hover:text-[#13192B] sm:inline-flex" href="{% url 'account_login' %}">Login</a>
+                    <a class="rounded-md bg-[#13192B] px-4 py-2 text-sm font-semibold text-[#FAFAF7] hover:bg-black" href="{% url 'account_signup' %}">Run Free Scan</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <header class="mx-auto grid max-w-6xl gap-12 px-5 py-20 sm:px-8 lg:grid-cols-[1.05fr_.95fr] lg:items-center lg:py-24">
+        <div>
+            <p class="mono flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-[#8B8578]">
+                <span class="h-2 w-2 rounded-full bg-[#3A6B52]"></span>
+                AI search readiness audit
+            </p>
+            <h1 class="display mt-5 max-w-3xl text-5xl font-medium leading-[1.06] tracking-tight sm:text-6xl">
+                Google search is not just links anymore. <span class="text-[#454C5E]">Can AI cite your site?</span>
+            </h1>
+            <p class="mt-6 max-w-xl text-lg leading-8 text-[#454C5E]">
+                AI Overviews, AI Mode, Perplexity, and ChatGPT-style search are changing how people discover businesses. {{ product_name }} checks whether your website is crawlable, structured, trustworthy, and ready to be used as a source.
+            </p>
+            <div class="mt-9 flex flex-wrap items-center gap-5">
+                {% if user.is_authenticated %}
+                    <a class="rounded-md bg-[#13192B] px-6 py-3.5 text-sm font-semibold text-[#FAFAF7] hover:bg-black" href="{% url 'dashboard' %}">Open Dashboard</a>
+                {% else %}
+                    <a class="rounded-md bg-[#13192B] px-6 py-3.5 text-sm font-semibold text-[#FAFAF7] hover:bg-black" href="{% url 'account_signup' %}">Run {{ free_audit_limit }} Free Scan{{ free_audit_limit|pluralize }}</a>
+                    <a class="border-b-2 border-[#13192B] pb-1 text-sm font-semibold" href="{% url 'account_login' %}">I already have an account</a>
+                {% endif %}
+            </div>
+            <p class="mt-4 text-sm text-[#8B8578]">
+                {% if active_customer %}
+                    You have {{ quota_scans_remaining }} scan{{ quota_scans_remaining|pluralize }} remaining on your account.
+                {% else %}
+                    No card required. Get a web report and downloadable PDF.
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="relative">
+            <div class="rounded-xl border border-[#E4E0D4] bg-white p-7 shadow-sm">
+                <span class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Live audit preview</span>
+                <div class="mt-5 grid grid-cols-[110px_minmax(0,1fr)] gap-5">
+                    <div class="rounded-lg border border-[#E4E0D4] bg-[#FAFAF7] p-4 text-center">
+                        <span class="display block text-6xl font-semibold text-[#C44536]">C</span>
+                        <strong class="mt-2 block text-lg">72/100</strong>
+                        <span class="mono mt-1 block text-[10px] uppercase tracking-wider text-[#8B8578]">AI score</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="rounded-lg border border-[#E4E0D4] bg-[#F2F0E9] p-3">
+                            <div class="flex items-center justify-between gap-3">
+                                <span class="text-sm font-semibold">FAQ schema</span>
+                                <span class="mono rounded-full bg-[#FAEAE6] px-2.5 py-1 text-[10px] font-semibold text-[#C44536]">missing</span>
+                            </div>
+                        </div>
+                        <div class="rounded-lg border border-[#E4E0D4] bg-white p-3">
+                            <div class="flex items-center justify-between gap-3">
+                                <span class="text-sm font-semibold">HTTPS + sitemap</span>
+                                <span class="mono rounded-full bg-[#E9F0EA] px-2.5 py-1 text-[10px] font-semibold text-[#3A6B52]">passed</span>
+                            </div>
+                        </div>
+                        <div class="rounded-lg border border-[#E4E0D4] bg-white p-3">
+                            <div class="flex items-center justify-between gap-3">
+                                <span class="text-sm font-semibold">AI citation test</span>
+                                <span class="mono rounded-full bg-[#E9F0EA] px-2.5 py-1 text-[10px] font-semibold text-[#3A6B52]">passed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-5 rounded-lg border border-dashed border-[#E4E0D4] bg-[#FAFAF7] p-4">
+                    <p class="display text-base leading-7 text-[#13192B]">
+                        “Your site has strong technical signals, but answer engines may struggle to identify your entity and extract direct answers.”
+                    </p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="border-y border-[#E4E0D4] py-7">
+        <div class="mx-auto flex max-w-6xl flex-col gap-5 px-5 text-sm text-[#8B8578] sm:px-8 lg:flex-row lg:items-center lg:justify-between">
+            <span class="mono text-xs font-semibold uppercase tracking-wider">Built for the new search surface</span>
+            <div class="display flex flex-wrap gap-8 text-lg text-[#C2BDAE]">
+                <span>AI Overviews</span>
+                <span>AI Mode</span>
+                <span>Perplexity</span>
+                <span>ChatGPT Search</span>
+            </div>
+        </div>
+    </section>
+
+    <main>
+        <section id="checks" class="mx-auto max-w-6xl px-5 py-20 sm:px-8">
+            <div class="max-w-2xl">
+                <p class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">What we check</p>
+                <h2 class="display mt-3 text-4xl font-medium tracking-tight">AI-friendly websites are built for extraction, trust, and citation.</h2>
+                <p class="mt-4 text-base leading-7 text-[#454C5E]">{{ product_name }} turns that into a practical checklist your team can actually act on.</p>
+            </div>
+            <div class="mt-12 grid overflow-hidden rounded-xl border border-[#E4E0D4] bg-[#E4E0D4] md:grid-cols-5">
+                <div class="bg-[#FAFAF7] p-6">
+                    <span class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">01</span>
+                    <h3 class="display mt-4 text-xl font-medium">Technical</h3>
+                    <p class="mt-3 text-sm leading-6 text-[#454C5E]">HTTPS, sitemap, robots, canonical tags, mobile metadata, response time, and crawl errors.</p>
+                </div>
+                <div class="bg-[#FAFAF7] p-6">
+                    <span class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">02</span>
+                    <h3 class="display mt-4 text-xl font-medium">Schema</h3>
+                    <p class="mt-3 text-sm leading-6 text-[#454C5E]">Organization, WebSite, FAQPage, Article, Breadcrumb, HowTo, and review signals.</p>
+                </div>
+                <div class="bg-[#FAFAF7] p-6">
+                    <span class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">03</span>
+                    <h3 class="display mt-4 text-xl font-medium">Trust</h3>
+                    <p class="mt-3 text-sm leading-6 text-[#454C5E]">About, contact, author bios, visible dates, privacy pages, and authority references.</p>
+                </div>
+                <div class="bg-[#FAFAF7] p-6">
+                    <span class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">04</span>
+                    <h3 class="display mt-4 text-xl font-medium">Content</h3>
+                    <p class="mt-3 text-sm leading-6 text-[#454C5E]">Direct answers, FAQ sections, heading hierarchy, content depth, and freshness.</p>
+                </div>
+                <div class="bg-[#FAFAF7] p-6">
+                    <span class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">05</span>
+                    <h3 class="display mt-4 text-xl font-medium">Citations</h3>
+                    <p class="mt-3 text-sm leading-6 text-[#454C5E]">Search-grounded citation checks through configured providers like Brave or Any Open-Ai compatible models.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="how" class="border-y border-[#E4E0D4] bg-[#F2F0E9] py-20">
+            <div class="mx-auto max-w-6xl px-5 sm:px-8">
+                <div class="max-w-2xl">
+                    <p class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">How it works</p>
+                    <h2 class="display mt-3 text-4xl font-medium tracking-tight">From URL to prioritized fixes in minutes.</h2>
+                </div>
+                <div class="mt-12 grid overflow-hidden rounded-xl border border-[#E4E0D4] bg-[#E4E0D4] md:grid-cols-3">
+                    <div class="bg-[#FAFAF7] p-8">
+                        <span class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Step 01</span>
+                        <h3 class="display mt-5 text-2xl font-medium">Submit your site</h3>
+                        <p class="mt-3 text-sm leading-6 text-[#454C5E]">Create an account, enter your website, and start with two free scans.</p>
+                    </div>
+                    <div class="bg-[#FAFAF7] p-8">
+                        <span class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Step 02</span>
+                        <h3 class="display mt-5 text-2xl font-medium">We inspect the signals</h3>
+                        <p class="mt-3 text-sm leading-6 text-[#454C5E]">The crawler, schema detector, scoring engine, and citation checker run in the background.</p>
+                    </div>
+                    <div class="bg-[#FAFAF7] p-8">
+                        <span class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Step 03</span>
+                        <h3 class="display mt-5 text-2xl font-medium">Get the fix list</h3>
+                        <p class="mt-3 text-sm leading-6 text-[#454C5E]">Open a clean report, download a PDF, and see what to improve first.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-[#13192B] py-20 text-[#FAFAF7]">
+            <div class="mx-auto grid max-w-6xl divide-y divide-white/10 px-5 sm:px-8 md:grid-cols-4 md:divide-x md:divide-y-0">
+                <div class="py-8 md:px-8">
+                    <strong class="display text-4xl font-medium">5</strong>
+                    <p class="mt-2 text-sm leading-6 text-white/60">AI visibility dimensions scored.</p>
+                </div>
+                <div class="py-8 md:px-8">
+                    <strong class="display text-4xl font-medium">{{ free_audit_limit }}</strong>
+                    <p class="mt-2 text-sm leading-6 text-white/60">Free scans for every new account.</p>
+                </div>
+                <div class="py-8 md:px-8">
+                    <strong class="display text-4xl font-medium">PDF</strong>
+                    <p class="mt-2 text-sm leading-6 text-white/60">Reports your client or team can keep.</p>
+                </div>
+                <div class="py-8 md:px-8">
+                    <strong class="display text-4xl font-medium">Fixes</strong>
+                    <p class="mt-2 text-sm leading-6 text-white/60">Prioritized recommendations, not vague scores.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="pricing" class="mx-auto max-w-6xl px-5 py-20 sm:px-8">
+            <div class="grid gap-8 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
+                <div>
+                    <p class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Start free</p>
+                    <h2 class="display mt-3 text-4xl font-medium tracking-tight">Check your AI visibility before your competitors do.</h2>
+                    <p class="mt-4 text-base leading-7 text-[#454C5E]">Use the free scans to diagnose your own site, then buy credits when you want to monitor more pages or run more audits.</p>
+                </div>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="rounded-xl border border-[#E4E0D4] bg-white p-7">
+                        <p class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Free</p>
+                        <strong class="display mt-5 block text-4xl font-medium">{{ free_audit_limit }} scan{{ free_audit_limit|pluralize }}</strong>
+                        <p class="mt-3 text-sm leading-6 text-[#454C5E]">No card required. Includes full scoring, findings, and PDF report.</p>
+                    </div>
+                    <div class="rounded-xl border-2 border-[#13192B] bg-white p-7">
+                        <p class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Credits</p>
+                        <strong class="display mt-5 block text-4xl font-medium">₹{{ scan_pack_price_rupees }}</strong>
+                        <p class="mt-3 text-sm leading-6 text-[#454C5E]">Configured as a {{ scan_pack_size }}-scan pack through Razorpay. Change pricing anytime.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ADDED: FAQ section — matches FAQPage schema above, fixes the content + schema gap from the scan -->
+        <section id="faq" class="border-y border-[#E4E0D4] py-20">
+            <div class="mx-auto max-w-6xl px-5 sm:px-8">
+                <div class="max-w-2xl">
+                    <p class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">FAQ</p>
+                    <h2 class="display mt-3 text-4xl font-medium tracking-tight">Common questions, answered directly.</h2>
+                </div>
+                <div class="mt-12 divide-y divide-[#E4E0D4] border-y border-[#E4E0D4]">
+                    <details class="group py-6">
+                        <summary class="display flex cursor-pointer list-none items-center justify-between text-xl font-medium">
+                            What does {{ product_name }} actually check?
+                            <span class="mono text-sm text-[#8B8578] group-open:rotate-45 transition-transform">+</span>
+                        </summary>
+                        <p class="mt-3 max-w-3xl text-sm leading-7 text-[#454C5E]">Five areas: technical health (HTTPS, sitemap, robots, canonical tags, response time), structured data (Organization, WebSite, FAQPage, Article, HowTo schema), trust signals (about, contact, author bios, visible dates), content structure (direct answers, heading hierarchy, depth), and a live AI citation test against configured search providers.</p>
+                    </details>
+                    <details class="group py-6">
+                        <summary class="display flex cursor-pointer list-none items-center justify-between text-xl font-medium">
+                            How is the AI score calculated?
+                            <span class="mono text-sm text-[#8B8578] group-open:rotate-45 transition-transform">+</span>
+                        </summary>
+                        <p class="mt-3 max-w-3xl text-sm leading-7 text-[#454C5E]">Each of the five categories is scored independently, then combined into a single 0–100 AI score with a letter grade. The report breaks down exactly which checks passed, failed, or are missing in each category.</p>
+                    </details>
+                    <details class="group py-6">
+                        <summary class="display flex cursor-pointer list-none items-center justify-between text-xl font-medium">
+                            Is the free scan really free?
+                            <span class="mono text-sm text-[#8B8578] group-open:rotate-45 transition-transform">+</span>
+                        </summary>
+                        <p class="mt-3 max-w-3xl text-sm leading-7 text-[#454C5E]">Yes. Every new account gets {{ free_audit_limit }} free scan{{ free_audit_limit|pluralize }} with full scoring, findings, and a downloadable PDF report, no card required. Additional scans are available in a {{ scan_pack_size }}-scan credit pack.</p>
+                    </details>
+                    <details class="group py-6">
+                        <summary class="display flex cursor-pointer list-none items-center justify-between text-xl font-medium">
+                            Which AI search surfaces does this cover?
+                            <span class="mono text-sm text-[#8B8578] group-open:rotate-45 transition-transform">+</span>
+                        </summary>
+                        <p class="mt-3 max-w-3xl text-sm leading-7 text-[#454C5E]">The audit is built around how Google AI Overviews, Google AI Mode, Perplexity, and ChatGPT-style search retrieve, extract, and cite web content.</p>
+                    </details>
+                    <details class="group py-6">
+                        <summary class="display flex cursor-pointer list-none items-center justify-between text-xl font-medium">
+                            Do I need to install anything on my site?
+                            <span class="mono text-sm text-[#8B8578] group-open:rotate-45 transition-transform">+</span>
+                        </summary>
+                        <p class="mt-3 max-w-3xl text-sm leading-7 text-[#454C5E]">No. Submit your URL and the crawler, schema detector, scoring engine, and citation checker run entirely on our side. You get a report and PDF back, with nothing to install.</p>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <section class="border-y border-[#E4E0D4] bg-[#F2F0E9] px-5 py-20 text-center sm:px-8">
+        <h2 class="display mx-auto max-w-2xl text-4xl font-medium tracking-tight">Is your site understandable enough for AI search?</h2>
+        <p class="mx-auto mt-4 max-w-xl text-base leading-7 text-[#454C5E]">Run a free scan and get a practical report on what helps, what blocks, and what to fix next.</p>
+        <div class="mt-8">
+            {% if user.is_authenticated %}
+                <a class="rounded-md bg-[#13192B] px-6 py-3.5 text-sm font-semibold text-[#FAFAF7] hover:bg-black" href="{% url 'dashboard' %}">Open Dashboard</a>
+            {% else %}
+                <a class="rounded-md bg-[#13192B] px-6 py-3.5 text-sm font-semibold text-[#FAFAF7] hover:bg-black" href="{% url 'account_signup' %}">Run Free Scan</a>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- IMPROVED: footer now has real trust signals — about, contact, privacy, terms, dates -->
+    <footer class="mx-auto max-w-6xl px-5 py-10 text-sm text-[#8B8578] sm:px-8">
+        <div class="grid gap-10 border-t border-[#E4E0D4] pt-10 sm:grid-cols-[1.3fr_1fr_1fr]">
+            <div>
+                <span class="display block text-lg font-semibold text-[#13192B]">{{ product_name }}</span>
+                <p class="mt-3 max-w-sm text-sm leading-6">AI visibility readiness audits for the answer-engine era. We check whether your site can be crawled, understood, trusted, and cited by AI search.</p>
+            </div>
+            <div>
+                <p class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Product</p>
+                <ul class="mt-3 space-y-2">
+                    <li><a class="hover:text-[#13192B]" href="#checks">What we check</a></li>
+                    <li><a class="hover:text-[#13192B]" href="#how">How it works</a></li>
+                    <li><a class="hover:text-[#13192B]" href="#faq">FAQ</a></li>
+                    <li><a class="hover:text-[#13192B]" href="#pricing">Pricing</a></li>
+                </ul>
+            </div>
+            <div>
+                <p class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Company</p>
+                <ul class="mt-3 space-y-2">
+                    <li><a class="hover:text-[#13192B]" href="{% url 'about' %}">About</a></li>
+                    <li><a class="hover:text-[#13192B]" href="mailto:{{ support_email|default:'hello@example.com' }}">Contact</a></li>
+                    <li><a class="hover:text-[#13192B]" href="{% url 'privacy_policy' %}">Privacy policy</a></li>
+                    <li><a class="hover:text-[#13192B]" href="{% url 'terms_of_service' %}">Terms of service</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="mt-8 flex flex-col justify-between gap-2 border-t border-[#E4E0D4] pt-6 sm:flex-row">
+            <span>© {% now "Y" %} {{ product_name }}. All rights reserved.</span>
+            <span>Last updated {% now "F Y" %}</span>
+        </div>
+    </footer>
+</body>
+</html>

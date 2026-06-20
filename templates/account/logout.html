@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Logout - {{ product_name }}{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-xl rounded-xl border border-[#E4E0D4] bg-white p-10 text-center shadow-sm">
+    <p class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Sign out</p>
+    <h1 class="display mt-3 text-4xl font-medium tracking-tight text-[#13192B]">Log out of {{ product_name }}?</h1>
+    <form class="mt-7 flex justify-center gap-3" method="post" action="{% url 'account_logout' %}">
+        {% csrf_token %}
+        <button class="inline-flex h-10 items-center justify-center rounded-md bg-[#13192B] px-4 text-sm font-semibold text-[#FAFAF7] shadow-sm hover:bg-black" type="submit">Logout</button>
+        <a class="inline-flex h-10 items-center justify-center rounded-md border border-[#E4E0D4] bg-white px-4 text-sm font-semibold text-[#454C5E] shadow-sm hover:bg-[#F2F0E9] hover:text-[#13192B]" href="{% url 'dashboard' %}">Cancel</a>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load socialaccount %}
+
+{% block title %}Login - {{ product_name }}{% endblock %}
+
+{% block content %}
+<section class="mx-auto grid max-w-5xl overflow-hidden rounded-xl border border-[#E4E0D4] bg-white shadow-sm lg:grid-cols-[1fr_420px]">
+    <div class="hidden bg-[#13192B] p-8 text-[#FAFAF7] lg:block">
+        <p class="mono text-xs font-semibold uppercase tracking-wider text-[#C2BDAE]">AI visibility console</p>
+        <h1 class="display mt-4 text-4xl font-medium tracking-tight">Know when your site is ready to be cited.</h1>
+        <p class="mt-5 text-sm leading-6 text-white/65">Run audits, store reports, and keep scan credits tied to your account email.</p>
+    </div>
+    <div class="p-6 sm:p-8">
+        <p class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Welcome back</p>
+        <h2 class="display mt-3 text-4xl font-medium tracking-tight text-[#13192B]">Log in</h2>
+
+        {% if google_oauth_configured %}
+            <a class="mt-6 inline-flex h-11 w-full items-center justify-center rounded-md border border-[#E4E0D4] bg-white px-4 text-sm font-semibold text-[#13192B] shadow-sm hover:bg-[#F2F0E9]" href="{% provider_login_url 'google' %}">
+                Continue with Google
+            </a>
+            <div class="my-5 flex items-center gap-3">
+                <div class="h-px flex-1 bg-[#E4E0D4]"></div>
+                <span class="mono text-[11px] font-semibold uppercase tracking-wide text-[#8B8578]">or</span>
+                <div class="h-px flex-1 bg-[#E4E0D4]"></div>
+            </div>
+        {% else %}
+            <div class="mt-6 rounded-lg border border-[#E4E0D4] bg-[#F6F0DE] px-4 py-3 text-sm font-medium text-[#8B6F25]">
+                Google login is not configured yet. Add `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` to `.env`.
+            </div>
+        {% endif %}
+
+        <form class="mt-5 grid gap-4" method="post" action="{% url 'account_login' %}">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="rounded-lg border border-[#E4E0D4] bg-[#FAEAE6] px-4 py-3 text-sm font-medium text-[#C44536]">{{ form.non_field_errors|striptags }}</div>
+            {% endif %}
+            <div>
+                <label class="mono mb-2 block text-xs font-semibold uppercase tracking-wider text-[#8B8578]" for="{{ form.login.id_for_label }}">Email</label>
+                {{ form.login }}
+                {% if form.login.errors %}<div class="mt-2 text-sm font-medium text-[#C44536]">{{ form.login.errors|striptags }}</div>{% endif %}
+            </div>
+            <div>
+                <label class="mono mb-2 block text-xs font-semibold uppercase tracking-wider text-[#8B8578]" for="{{ form.password.id_for_label }}">Password</label>
+                {{ form.password }}
+                {% if form.password.errors %}<div class="mt-2 text-sm font-medium text-[#C44536]">{{ form.password.errors|striptags }}</div>{% endif %}
+            </div>
+            {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+            {% endif %}
+            <button class="inline-flex h-11 items-center justify-center rounded-md bg-[#13192B] px-5 text-sm font-semibold text-[#FAFAF7] shadow-sm hover:bg-black" type="submit">Log in</button>
+        </form>
+
+        <p class="mt-5 text-sm text-[#454C5E]">
+            New here?
+            <a class="font-semibold text-[#3A6B52] hover:text-[#13192B]" href="{% url 'account_signup' %}">Create an account</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Continue with Google - {{ product_name }}{% endblock %}
+
+{% block content %}
+<section class="mx-auto max-w-xl rounded-xl border border-[#E4E0D4] bg-white p-10 text-center shadow-sm">
+    <p class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Google authentication</p>
+    <h1 class="display mt-3 text-4xl font-medium tracking-tight text-[#13192B]">Continue with Google?</h1>
+    <p class="mx-auto mt-4 max-w-md text-sm leading-6 text-[#454C5E]">You will be redirected to Google to finish signing in.</p>
+    <form class="mt-7" method="post">
+        {% csrf_token %}
+        <button class="inline-flex h-11 items-center justify-center rounded-md bg-[#13192B] px-5 text-sm font-semibold text-[#FAFAF7] shadow-sm hover:bg-black" type="submit">Continue</button>
+    </form>
+</section>
+{% endblock %}

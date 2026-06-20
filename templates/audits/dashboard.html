@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Run Audit - {{ product_name }}{% endblock %}
+
+{% block content %}
+<div class="grid gap-6">
+    <section class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <div class="rounded-xl border border-[#E4E0D4] bg-white p-7 shadow-sm">
+            <p class="mono flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-[#8B8578]">
+                <span class="h-2 w-2 rounded-full bg-[#3A6B52]"></span>
+                AI visibility console
+            </p>
+            <h1 class="display mt-4 max-w-3xl text-4xl font-medium leading-tight tracking-tight text-[#13192B]">
+                Run a citation-readiness audit for your website.
+            </h1>
+            <p class="mt-4 max-w-2xl text-sm leading-6 text-[#454C5E]">
+                Signed in as <span class="font-semibold text-[#13192B]">{{ user.email }}</span>. Your scans, credits, and reports stay attached to this account.
+            </p>
+        </div>
+
+        <div class="rounded-xl border border-[#E4E0D4] bg-white p-6 shadow-sm">
+            <p class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Available scans</p>
+            <div class="mt-4 flex items-end gap-2">
+                <span class="display text-6xl font-medium leading-none text-[#3A6B52]">{{ customer.total_audits_remaining }}</span>
+                <span class="pb-2 text-sm font-semibold text-[#8B8578]">total</span>
+            </div>
+            <div class="mt-5 grid grid-cols-2 gap-3">
+                <div class="rounded-lg border border-[#E4E0D4] bg-[#FAFAF7] p-3">
+                    <span class="mono block text-[10px] font-semibold uppercase tracking-wider text-[#8B8578]">Free left</span>
+                    <strong class="mt-1 block text-xl text-[#13192B]">{{ customer.free_audits_remaining }}</strong>
+                </div>
+                <div class="rounded-lg border border-[#E4E0D4] bg-[#FAFAF7] p-3">
+                    <span class="mono block text-[10px] font-semibold uppercase tracking-wider text-[#8B8578]">Paid</span>
+                    <strong class="mt-1 block text-xl text-[#13192B]">{{ customer.paid_audit_credits }}</strong>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="rounded-xl border border-[#E4E0D4] bg-white p-6 shadow-sm">
+        <form method="post" action="{% url 'start_audit' %}" class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+            {% csrf_token %}
+            <div>
+                <label class="mono mb-2 block text-xs font-semibold uppercase tracking-wider text-[#8B8578]" for="{{ form.url.id_for_label }}">Website URL</label>
+                {{ form.url }}
+                {% if form.url.errors %}
+                    <div class="mt-2 text-sm font-medium text-[#C44536]">{{ form.url.errors|striptags }}</div>
+                {% endif %}
+            </div>
+            <button class="inline-flex h-11 items-center justify-center rounded-md bg-[#13192B] px-5 text-sm font-semibold text-[#FAFAF7] shadow-sm hover:bg-black" type="submit">
+                Run Scan
+            </button>
+        </form>
+        {% if quota_blocked %}
+            <div class="mt-4 rounded-lg border border-[#E4E0D4] bg-[#F6F0DE] px-4 py-3 text-sm font-medium text-[#8B6F25]">
+                This account has used its free scans. <a class="font-bold underline" href="{% url 'checkout' %}">Buy credits</a> to continue.
+            </div>
+        {% else %}
+            <p class="mt-3 text-sm text-[#8B8578]">Each scan crawls the site, scores AI citability, checks configured citation providers, and creates a PDF report.</p>
+        {% endif %}
+    </section>
+
+    <section class="grid gap-4 md:grid-cols-3">
+        <div class="rounded-xl border border-[#E4E0D4] bg-white p-6 shadow-sm">
+            <span class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Free limit</span>
+            <strong class="display mt-3 block text-4xl font-medium text-[#13192B]">{{ free_audit_limit }}</strong>
+        </div>
+        <div class="rounded-xl border border-[#E4E0D4] bg-white p-6 shadow-sm">
+            <span class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Report format</span>
+            <strong class="display mt-3 block text-4xl font-medium text-[#13192B]">PDF</strong>
+        </div>
+        <div class="rounded-xl border border-[#E4E0D4] bg-white p-6 shadow-sm">
+            <span class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Identity</span>
+            <strong class="display mt-3 block text-4xl font-medium text-[#13192B]">Email</strong>
+        </div>
+    </section>
+
+    <section class="overflow-hidden rounded-xl border border-[#E4E0D4] bg-white shadow-sm">
+        <div class="border-b border-[#E4E0D4] px-6 py-5">
+            <h2 class="display text-2xl font-medium text-[#13192B]">Recent audits</h2>
+        </div>
+        {% if recent_audits %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-[#E4E0D4] text-sm">
+                    <thead class="bg-[#F2F0E9]">
+                        <tr>
+                            <th class="mono px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Domain</th>
+                            <th class="mono px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Status</th>
+                            <th class="mono px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Score</th>
+                            <th class="mono px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Created</th>
+                            <th class="px-6 py-3"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-[#E4E0D4] bg-white">
+                        {% for audit in recent_audits %}
+                            <tr>
+                                <td class="whitespace-nowrap px-6 py-4 font-semibold text-[#13192B]">{{ audit.domain }}</td>
+                                <td class="whitespace-nowrap px-6 py-4">
+                                    <span class="mono inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase {% if audit.status == 'complete' %}bg-[#E9F0EA] text-[#3A6B52]{% elif audit.status == 'failed' %}bg-[#FAEAE6] text-[#C44536]{% else %}bg-[#F6F0DE] text-[#B79A4A]{% endif %}">
+                                        {{ audit.get_status_display }}
+                                    </span>
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4 text-[#454C5E]">{% if audit.overall_score %}{{ audit.overall_score }}/100{% else %}-{% endif %}</td>
+                                <td class="whitespace-nowrap px-6 py-4 text-[#454C5E]">{{ audit.created_at|date:"M j, Y H:i" }}</td>
+                                <td class="whitespace-nowrap px-6 py-4 text-right">
+                                    {% if audit.status == "complete" %}
+                                        <a class="font-semibold text-[#3A6B52] hover:text-[#13192B]" href="{% url 'audit_report' audit.id %}">Open</a>
+                                    {% else %}
+                                        <a class="font-semibold text-[#3A6B52] hover:text-[#13192B]" href="{% url 'audit_status' audit.id %}">Status</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="px-6 py-10 text-sm text-[#8B8578]">No scans yet. Run your first audit above.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

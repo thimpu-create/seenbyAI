@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Audit Running - {{ product_name }}{% endblock %}
+
+{% block content %}
+<section class="mx-auto mt-10 max-w-3xl rounded-xl border border-[#E4E0D4] bg-white p-10 text-center shadow-sm" data-audit-id="{{ audit.id }}" data-poll-url="{% url 'audit_status_poll' audit.id %}">
+    <div class="mx-auto h-16 w-16 animate-spin rounded-full border-4 border-[#E4E0D4] border-t-[#3A6B52]"></div>
+    <p class="mono mt-6 text-xs font-semibold uppercase tracking-wider text-[#8B8578]">Audit in progress</p>
+    <h1 class="display mt-3 text-4xl font-medium tracking-tight text-[#13192B]">{{ audit.domain }}</h1>
+    <p id="status-copy" class="mx-auto mt-4 max-w-xl text-sm leading-6 text-[#454C5E]">
+        Crawling pages, reading schema, scoring trust signals, and checking citation sources.
+    </p>
+    <div class="mt-7 flex flex-wrap justify-center gap-2">
+        <span class="mono rounded-full bg-[#F2F0E9] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#8B8578]">Technical</span>
+        <span class="mono rounded-full bg-[#F2F0E9] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#8B8578]">Schema</span>
+        <span class="mono rounded-full bg-[#F2F0E9] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#8B8578]">E-E-A-T</span>
+        <span class="mono rounded-full bg-[#F2F0E9] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#8B8578]">Citations</span>
+        <span class="mono rounded-full bg-[#F2F0E9] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#8B8578]">PDF-ready</span>
+    </div>
+</section>
+
+<script>
+const panel = document.querySelector("[data-audit-id]");
+const statusCopy = document.getElementById("status-copy");
+const pollUrl = panel.dataset.pollUrl;
+
+async function pollStatus() {
+    const response = await fetch(pollUrl, {headers: {"Accept": "application/json"}});
+    const data = await response.json();
+    if (data.redirect_url) {
+        window.location.href = data.redirect_url;
+        return;
+    }
+    if (data.status === "failed") {
+        statusCopy.textContent = data.error_message || "The audit failed. Your scan credit has been refunded.";
+        panel.classList.add("border-[#C44536]", "bg-[#FAEAE6]");
+        return;
+    }
+    window.setTimeout(pollStatus, 2500);
+}
+
+window.setTimeout(pollStatus, 1500);
+</script>
+{% endblock %}

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>About {{ product_name }}</title>
+    <meta name="description" content="{{ product_name }} is built to help website owners understand whether AI search engines can find, trust, and cite their content. Learn what we check and why it matters.">
+    <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{% url 'about' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: Inter, system-ui, sans-serif; }
+        .display { font-family: Fraunces, Georgia, serif; }
+        .mono { font-family: "IBM Plex Mono", monospace; }
+    </style>
+</head>
+<body class="bg-[#FAFAF7] text-[#13192B] antialiased">
+    <nav class="sticky top-0 z-50 border-b border-[#E4E0D4] bg-[#FAFAF7]/90 backdrop-blur">
+        <div class="mx-auto flex h-[72px] max-w-6xl items-center justify-between px-5 sm:px-8">
+            <a class="display flex items-center gap-3 text-xl font-semibold" href="{% url 'landing' %}">
+                <span class="mono grid h-7 w-7 place-items-center rounded-full border border-[#13192B] text-xs">S</span>
+                <span>{{ product_name }}</span>
+            </a>
+            <div class="flex items-center gap-3">
+                {% if user.is_authenticated %}
+                    <a class="rounded-md bg-[#13192B] px-4 py-2 text-sm font-semibold text-[#FAFAF7] hover:bg-black" href="{% url 'dashboard' %}">Open Dashboard</a>
+                {% else %}
+                    <a class="rounded-md bg-[#13192B] px-4 py-2 text-sm font-semibold text-[#FAFAF7] hover:bg-black" href="{% url 'account_signup' %}">Run Free Scan</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <header class="mx-auto max-w-3xl px-5 py-20 sm:px-8">
+        <p class="mono text-xs font-semibold uppercase tracking-wider text-[#8B8578]">About</p>
+        <h1 class="display mt-4 text-5xl font-medium leading-[1.1] tracking-tight">
+            Search is changing. We help you keep up with it.
+        </h1>
+        <p class="mt-6 text-lg leading-8 text-[#454C5E]">
+            {{ product_name }} started from a simple observation: more people are finding businesses through AI-generated answers than through a list of blue links. An AI Overview, a Perplexity answer, or a ChatGPT search result either cites your site or it doesn't — and most websites have no way of knowing which.
+        </p>
+    </header>
+
+    <main class="mx-auto max-w-3xl px-5 pb-20 sm:px-8">
+        <section class="border-t border-[#E4E0D4] py-12">
+            <h2 class="display text-2xl font-medium tracking-tight">What we believe</h2>
+            <p class="mt-4 text-base leading-7 text-[#454C5E]">
+                A website can be well-designed and still be invisible to an AI crawler. Good SEO and good AI-search readiness overlap, but they aren't the same thing — an answer engine needs to extract a clear claim, trust where it came from, and confirm the page is structured well enough to quote. We built {{ product_name }} to measure that gap directly, rather than guessing at it.
+            </p>
+        </section>
+
+        <section class="border-t border-[#E4E0D4] py-12">
+            <h2 class="display text-2xl font-medium tracking-tight">What the audit actually does</h2>
+            <p class="mt-4 text-base leading-7 text-[#454C5E]">
+                Every scan checks five things: technical crawlability, structured data, trust signals, content structure, and a live citation test against real search providers. The report doesn't stop at a score — it lists what's missing and what to fix first, in the order that matters most.
+            </p>
+        </section>
+
+        <section class="border-t border-[#E4E0D4] py-12">
+            <h2 class="display text-2xl font-medium tracking-tight">Who it's for</h2>
+            <p class="mt-4 text-base leading-7 text-[#454C5E]">
+                Marketing teams, agencies, and site owners who want to know whether their content is actually reaching readers through the surfaces that increasingly stand between them and a search box.
+            </p>
+        </section>
+
+        <section class="border-t border-[#E4E0D4] py-12">
+            <h2 class="display text-2xl font-medium tracking-tight">Get in touch</h2>
+            <p class="mt-4 text-base leading-7 text-[#454C5E]">
+                Questions, feedback, or a site you'd like us to take a closer look at — reach us at
+                <a class="border-b border-[#13192B] font-semibold hover:text-[#454C5E]" href="mailto:{{ support_email|default:'hello@example.com' }}">{{ support_email|default:"hello@example.com" }}</a>.
+            </p>
+        </section>
+    </main>
+
+    <footer class="mx-auto max-w-6xl px-5 py-10 text-sm text-[#8B8578] sm:px-8">
+        <div class="flex flex-col justify-between gap-2 border-t border-[#E4E0D4] pt-6 sm:flex-row">
+            <span>© {% now "Y" %} {{ product_name }}. All rights reserved.</span>
+            <a class="hover:text-[#13192B]" href="{% url 'landing' %}">Back to home</a>
+        </div>
+    </footer>
+</body>
+</html>
