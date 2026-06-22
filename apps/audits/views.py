@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from urllib.parse import urlparse
+from xml.sax.saxutils import escape
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -19,14 +20,61 @@ from .tasks import run_audit
 def landing(request):
     return render(request, "landing.html")
 
+
 def about(request):
     return render(request, "about.html")
+
 
 def privacy_policy(request):
     return render(request, "privacy_policy.html")
 
+
 def terms_of_service(request):
     return render(request, "terms_of_service.html")
+
+
+def robots_txt(request):
+    sitemap_url = request.build_absolute_uri(reverse("sitemap_xml"))
+    lines = [
+        "User-agent: *",
+        "Allow: /",
+        "Disallow: /admin/",
+        "Disallow: /accounts/",
+        "Disallow: /dashboard/",
+        "Disallow: /audits/",
+        "Disallow: /billing/",
+        "",
+        f"Sitemap: {sitemap_url}",
+        "",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")
+
+
+def sitemap_xml(request):
+    public_pages = [
+        ("landing", "daily", "1.0"),
+        ("about", "monthly", "0.7"),
+        ("privacy_policy", "yearly", "0.3"),
+        ("terms_of_service", "yearly", "0.3"),
+    ]
+    url_entries = []
+    for name, changefreq, priority in public_pages:
+        loc = escape(request.build_absolute_uri(reverse(name)))
+        url_entries.append(
+            f"  <url>\n"
+            f"    <loc>{loc}</loc>\n"
+            f"    <changefreq>{changefreq}</changefreq>\n"
+            f"    <priority>{priority}</priority>\n"
+            f"  </url>"
+        )
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + "\n".join(url_entries)
+        + "\n</urlset>\n"
+    )
+    return HttpResponse(xml, content_type="application/xml")
+
 
 @login_required
 def dashboard(request):

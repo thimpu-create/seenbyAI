@@ -1,25 +1,26 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ product_name }} — check if your site is AI-search ready</title>
-
-    <!-- ADDED: meta description — single highest-leverage fix from the scan -->
     <meta name="description" content="{{ product_name }} audits your website for AI search readiness: crawlability, schema, trust signals, content structure, and whether AI Overviews, Perplexity, and ChatGPT Search can actually cite you. Run 2 free scans, no card required.">
-
-    <!-- ADDED: canonical tag -->
+    {% if google_site_verification %}<meta name="google-site-verification" content="{{ google_site_verification }}">{% endif %}
     <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{% url 'landing' %}">
-
-    <!-- ADDED: Open Graph + Twitter card so social/AI crawlers get a clean entity summary -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="{{ product_name }}">
     <meta property="og:title" content="{{ product_name }} — check if your site is AI-search ready">
     <meta property="og:description" content="Audit your website for AI search readiness across technical health, schema, trust, content, and citations. 2 free scans, no card required.">
     <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{% url 'landing' %}">
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/seenbyai-og.png' %}">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ product_name }} — check if your site is AI-search ready">
     <meta name="twitter:description" content="Audit your website for AI search readiness across technical health, schema, trust, content, and citations.">
+    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/seenbyai-og.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon-32.png' %}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'img/favicon-192.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,7 +32,6 @@
         .mono { font-family: "IBM Plex Mono", monospace; }
     </style>
 
-    <!-- ADDED: Organization schema — identifies the entity behind the site -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -43,7 +43,6 @@
     }
     </script>
 
-    <!-- ADDED: SoftwareApplication + Offer schema — names the product and its price -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -71,7 +70,6 @@
     }
     </script>
 
-    <!-- ADDED: FAQPage schema — paired with the new FAQ section below -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -125,7 +123,7 @@
     <nav class="sticky top-0 z-50 border-b border-[#E4E0D4] bg-[#FAFAF7]/90 backdrop-blur">
         <div class="mx-auto flex h-[72px] max-w-6xl items-center justify-between px-5 sm:px-8">
             <a class="display flex items-center gap-3 text-xl font-semibold" href="{% url 'landing' %}">
-                <span class="mono grid h-7 w-7 place-items-center rounded-full border border-[#13192B] text-xs">S</span>
+                <img class="h-8 w-8 rounded-full border border-[#E4E0D4] bg-white object-contain p-1" src="{% static 'img/seenbyai-logo.png' %}" alt="{{ product_name }} logo">
                 <span>{{ product_name }}</span>
             </a>
             <div class="hidden items-center gap-8 text-sm font-medium text-[#454C5E] md:flex">

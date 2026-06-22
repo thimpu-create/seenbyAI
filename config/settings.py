@@ -141,6 +141,7 @@ CELERY_TASK_TRACK_STARTED = True
 PRODUCT_NAME = config("PRODUCT_NAME", default="SeenByAI")
 PRODUCT_TAGLINE = config("PRODUCT_TAGLINE", default="See whether AI answer engines can find and cite your site.")
 SUPPORT_EMAIL = "developer.thimpu@gmail.com"
+GOOGLE_SITE_VERIFICATION = config("GOOGLE_SITE_VERIFICATION", default="")
 
 FREE_AUDIT_LIMIT = config("FREE_AUDIT_LIMIT", default=2, cast=int)
 CRAWL_MAX_PAGES = config("CRAWL_MAX_PAGES", default=25, cast=int)

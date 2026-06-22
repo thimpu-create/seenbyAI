@@ -5,6 +5,8 @@ from . import views
 
 urlpatterns = [
     path("", views.landing, name="landing"),
+    path("robots.txt", views.robots_txt, name="robots_txt"),
+    path("sitemap.xml", views.sitemap_xml, name="sitemap_xml"),
     path("dashboard/", views.dashboard, name="dashboard"),
     path("about/", views.about, name="about"),
     path("privacy-policy/", views.privacy_policy, name="privacy_policy"),
