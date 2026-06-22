@@ -49,7 +49,7 @@
                 <span class="{% if check.was_cited %}pass{% else %}severity{% endif %}">
                     {% if check.was_cited %}Cited{% else %}{{ check.get_status_display }}{% endif %}
                 </span>
-                <p>{{ check.ai_response_snippet }}</p>
+                <p>{{ check.display_snippet }}</p>
             </div>
         {% empty %}
             <p class="muted">No live citation provider returned evidence for this scan.</p>
@@ -57,26 +57,30 @@
     </div>
 
     <div class="section">
-        <h2>AI Readiness Simulation</h2>
-        <p class="muted">{{ simulation_summary.likely_ready }} likely ready out of {{ simulation_summary.total_checked }} completed simulations.</p>
+        <h2>AI Answer Readiness</h2>
+        <p class="muted">{{ simulation_summary.likely_ready }} of {{ simulation_summary.total_checked }} simulated prompts passed.</p>
+        <p class="muted">This is a crawl-based readiness estimate, not live citation proof. It shows whether an answer engine has enough structured, trustworthy evidence to confidently mention the site.</p>
         {% if simulation_summary.total_checked == 0 %}
             <p class="notice">No simulation completed. Configure a reachable local or hosted LLM endpoint to estimate whether the crawled content looks citation-ready.</p>
         {% endif %}
-        {% for check in simulation_checks %}
+        {% if simulation_result.has_checks %}
             <div class="row">
-                <strong>{{ check.engine_label }}</strong> · {{ check.query_used }}<br>
-                <span class="{% if check.was_cited and check.status == 'complete' %}pass{% else %}severity{% endif %}">
-                    {% if check.status == 'complete' %}
-                        {% if check.was_cited %}Likely ready{% else %}Needs work{% endif %}
-                    {% else %}
-                        {{ check.get_status_display }}
-                    {% endif %}
+                <strong>AI Readiness Check</strong><br>
+                <span class="{% if simulation_result.is_likely_ready %}pass{% else %}severity{% endif %}">
+                    {{ simulation_result.status_label }}
                 </span>
-                <p>{{ check.ai_response_snippet }}</p>
+                {% if simulation_result.prompts %}
+                    <p><strong>Tested prompts:</strong>
+                        {% for prompt in simulation_result.prompts %}
+                            {{ prompt }}{% if not forloop.last %}; {% endif %}
+                        {% endfor %}
+                    </p>
+                {% endif %}
+                <p>{{ simulation_result.display_snippet }}</p>
             </div>
-        {% empty %}
+        {% else %}
             <p class="muted">No AI-readiness simulation was stored for this scan.</p>
-        {% endfor %}
+        {% endif %}
     </div>
 
     <div class="section">

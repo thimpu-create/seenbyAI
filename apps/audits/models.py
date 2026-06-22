@@ -209,8 +209,8 @@ class CitationCheck(models.Model):
     ENGINE_LABELS = {
         "brave_search": "Brave Search",
         "brave_llm_context": "Brave AI Context",
-        "ollama_local": "Local AI Simulation",
-        "llm_citation": "AI Citation Simulation",
+        "ollama_local": "Local AI Readiness Check",
+        "llm_citation": "AI Readiness Check",
         "citation_provider": "Citation Provider",
     }
     SIMULATION_ENGINES = {"ollama_local", "llm_citation"}

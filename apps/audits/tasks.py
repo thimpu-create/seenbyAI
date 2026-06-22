@@ -28,6 +28,7 @@ def run_audit(self, audit_id: str):
         crawl_data = asyncio.run(enrich_authority_signals(crawl_data, audit.domain))
         homepage_html = asyncio.run(fetch_html(audit.url))
         schema_data = detect_schema_types(homepage_html)
+        crawl_data["schema_types_detected"] = schema_data.get("types_detected", [])
 
         results = {
             "technical": score_technical(crawl_data),

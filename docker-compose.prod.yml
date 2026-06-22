@@ -1,14 +1,4 @@
 services:
-  db:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: seenbyai
-      POSTGRES_USER: seenbyai
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
   redis:
     image: redis:7-alpine
     restart: unless-stopped
@@ -25,7 +15,6 @@ services:
       RUN_MIGRATIONS: "true"
       RUN_COLLECTSTATIC: "true"
     depends_on:
-      - db
       - redis
 
   celery:
@@ -38,8 +27,4 @@ services:
       RUN_MIGRATIONS: "false"
       RUN_COLLECTSTATIC: "false"
     depends_on:
-      - db
       - redis
-
-volumes:
-  postgres_data:

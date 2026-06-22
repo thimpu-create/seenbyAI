@@ -9,6 +9,8 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
+from apps.citation_checker.engine import build_readiness_display_snippet
+
 from .forms import AuditForm
 from .models import AuditReport, Customer, Visitor
 from .tasks import run_audit
@@ -137,6 +139,20 @@ def _report_context(audit):
     citation_checks = audit.citation_checks.all()
     live_checks = [check for check in citation_checks if check.is_live_evidence]
     simulation_checks = [check for check in citation_checks if check.is_simulation]
+    crawl_context = dict(audit.crawl_data or {})
+    crawl_context.setdefault("schema_types_detected", (audit.schema_data or {}).get("types_detected", []))
+    for check in live_checks:
+        check.display_snippet = check.ai_response_snippet
+    for check in simulation_checks:
+        if check.status == "complete":
+            check.display_snippet = build_readiness_display_snippet(
+                crawl_context,
+                audit.domain,
+                raw_reasoning=check.ai_response_snippet,
+                is_likely_ready=check.was_cited,
+            )
+        else:
+            check.display_snippet = check.ai_response_snippet
     completed_live_checks = [check for check in live_checks if check.status == "complete"]
     completed_simulation_checks = [check for check in simulation_checks if check.status == "complete"]
     citation_summary = {
@@ -151,6 +167,7 @@ def _report_context(audit):
         "skipped": sum(1 for check in simulation_checks if check.status == "skipped"),
         "failed": sum(1 for check in simulation_checks if check.status == "failed"),
     }
+    simulation_result = _simulation_result(audit, crawl_context, simulation_checks, simulation_summary)
 
     critical_fixes = audit.findings.filter(is_passed=False).exclude(severity="pass").order_by("points_impact")[:6]
     return {
@@ -159,9 +176,43 @@ def _report_context(audit):
         "dimension_scores": audit.get_dimension_scores(),
         "citation_summary": citation_summary,
         "simulation_summary": simulation_summary,
+        "simulation_result": simulation_result,
         "live_citation_checks": live_checks,
         "simulation_checks": simulation_checks,
         "critical_fixes": critical_fixes,
+    }
+
+
+def _simulation_result(audit, crawl_context, simulation_checks, simulation_summary):
+    prompts = list(dict.fromkeys(check.query_used for check in simulation_checks if check.query_used))
+    total_checked = simulation_summary["total_checked"]
+    likely_ready = simulation_summary["likely_ready"]
+    has_checks = bool(simulation_checks)
+
+    if total_checked == 0:
+        status_label = "Not available"
+        is_likely_ready = False
+        display_snippet = (
+            simulation_checks[0].display_snippet
+            if simulation_checks
+            else "No AI-readiness simulation was stored for this scan."
+        )
+    else:
+        is_likely_ready = likely_ready == total_checked
+        status_label = "Likely ready" if is_likely_ready else "Needs work"
+        display_snippet = build_readiness_display_snippet(
+            crawl_context,
+            audit.domain,
+            raw_reasoning="",
+            is_likely_ready=is_likely_ready,
+        )
+
+    return {
+        "has_checks": has_checks,
+        "prompts": prompts,
+        "status_label": status_label,
+        "is_likely_ready": is_likely_ready,
+        "display_snippet": display_snippet,
     }
 
 
