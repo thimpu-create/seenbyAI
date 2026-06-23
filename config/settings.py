@@ -38,6 +38,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "apps.audits.middleware.VisitorMiddleware",
+    "django_ratelimit.middleware.RatelimitMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -157,3 +158,6 @@ RAZORPAY_WEBHOOK_SECRET = config("RAZORPAY_WEBHOOK_SECRET", default="")
 RAZORPAY_CURRENCY = config("RAZORPAY_CURRENCY", default="INR")
 CREDIT_PACK_AMOUNT_PAISE = config("CREDIT_PACK_AMOUNT_PAISE", default=9900, cast=int)
 CREDIT_PACK_CREDITS = config("CREDIT_PACK_CREDITS", default=10, cast=int)
+
+
+RATELIMIT_VIEW = "apps.audits.auth_views.ratelimited_view"
